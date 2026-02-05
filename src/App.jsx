@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-
 /**
  * CSV format:
  * TEAM,FIRST,SECOND,THIRD,POINTS
@@ -10,7 +9,6 @@ const GOOGLE_SHEET_URL =
 
 /**
  * FULL REPORT LINK
- * (Google Sheet / Drive / PDF / Dashboard etc.)
  */
 const FULL_REPORT_URL =
   "https://docs.google.com/spreadsheets/d/1dJ1PkIXQvKohio091Tthsj6IBPaP_TjTDX-ld326BpI/edit";
@@ -35,16 +33,14 @@ export default function App() {
       const csvText = await res.text();
       const parsedData = parseCSV(csvText);
 
-      // Sort by POINTS (descending)
       parsedData.sort((a, b) => b.score - a.score);
 
-      // Assign ranks + LIMIT TO 4 TEAMS
       const ranked = parsedData
         .map((item, index) => ({
           ...item,
           rank: index + 1
         }))
-        .slice(0, 4); // 👈 IMPORTANT FIX
+        .slice(0, 4);
 
       setLeaderboardItems(ranked);
     } catch (err) {
@@ -80,13 +76,26 @@ export default function App() {
 
       {/* HEADER */}
       <header className="w-full max-w-lg flex justify-between items-center py-8 px-6 border-b border-red-900/40">
-        <img
-  src="/logo.png"
-  alt="Company Logo"
-  className="h-20 md:h-24 object-contain drop-shadow-[0_0_30px_rgba(255,0,0,0.6)]"
-/>
 
+        {/* Logo + IECUP */}
+        <div className="flex items-center gap-4">
+          <img
+            src="/logo.png"
+            alt="Company Logo"
+            className="h-20 md:h-24 object-contain drop-shadow-[0_0_30px_rgba(255,0,0,0.6)]"
+          />
 
+          <div className="text-3xl font-extrabold tracking-wide flex">
+            <span className="px-2 py-1 border-2 border-red-600 text-white bg-black rounded-md shadow-[0_0_12px_rgba(255,0,0,0.6)]">
+              IE
+            </span>
+            <span className="px-2 py-1 border-2 border-white text-white bg-black rounded-md ml-1 shadow-[0_0_12px_rgba(255,255,255,0.4)]">
+              CUP
+            </span>
+          </div>
+        </div>
+
+        {/* Controls */}
         <div className="flex items-center gap-3">
           {isLoading && (
             <span className="text-xs text-red-400 animate-pulse">
@@ -100,16 +109,15 @@ export default function App() {
             Refresh
           </button>
         </div>
+
       </header>
 
       {/* MAIN */}
       <main className="w-full max-w-lg px-4 mt-10">
         <h1 className="text-3xl font-bold text-center tracking-wide">
-          Performance Leaderboard
+          Leaderboard
         </h1>
-        <p className="text-center text-slate-400 mb-10">
-          Top Performers
-        </p>
+        
 
         {errorMessage && (
           <div className="bg-red-950 border border-red-800 text-red-400 p-4 rounded-lg mb-6">
@@ -127,9 +135,7 @@ export default function App() {
                 <div className="font-semibold text-lg tracking-wide">
                   {item.team}
                 </div>
-                <div className="text-xs text-slate-500 tracking-widest">
-                  RANK #{item.rank}
-                </div>
+               
               </div>
 
               <div className="text-right">
@@ -144,9 +150,9 @@ export default function App() {
           ))}
         </div>
 
-        {/* VIEW FULL REPORT LINK */}
+        {/* VIEW FULL REPORT */}
         <a
-          href="https://docs.google.com/spreadsheets/d/1dJ1PkIXQvKohio091Tthsj6IBPaP_TjTDX-ld326BpI/edit?gid=0#gid=0"
+          href={FULL_REPORT_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-12 w-full block bg-red-700 hover:bg-red-600 text-black font-bold py-4 rounded-xl text-center transition shadow-lg shadow-red-900/40"
