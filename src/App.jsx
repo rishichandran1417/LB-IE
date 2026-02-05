@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo from "./assets/logo.png";
+
 
 /**
  * CSV format:
@@ -81,10 +81,11 @@ export default function App() {
       {/* HEADER */}
       <header className="w-full max-w-lg flex justify-between items-center py-8 px-6 border-b border-red-900/40">
         <img
-          src={logo}
-          alt="Company Logo"
-          className="h-20 md:h-24 object-contain drop-shadow-[0_0_30px_rgba(255,0,0,0.6)]"
-        />
+  src="/logo.png"
+  alt="Company Logo"
+  className="h-20 md:h-24 object-contain drop-shadow-[0_0_30px_rgba(255,0,0,0.6)]"
+/>
+
 
         <div className="flex items-center gap-3">
           {isLoading && (
