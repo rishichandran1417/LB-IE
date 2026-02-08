@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
  * TEAM,FIRST,SECOND,THIRD,POINTS
  */
 const GOOGLE_SHEET_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSZmxQNxuNJ_BO8MAgz5gApbtE6R-SLZFbWgoaVPKB9-fv_RUBQ5jPzcXkDV8rEUsA8HpNO3hugpcy7/pub?output=csv";
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQwjrHezjqI6w1i7M5mtosuA-HcKMn7WAwY3C3izt4odtcXg1EiYa0aPkNmYgM7uxJa97hZy2c-Wlr/pub?output=csv";
 
 /**
  * FULL REPORT LINK
@@ -27,7 +27,8 @@ export default function App() {
     setErrorMessage(null);
 
     try {
-      const res = await fetch(GOOGLE_SHEET_URL);
+      const res = await fetch(`${GOOGLE_SHEET_URL}&t=${Date.now()}`);
+
       if (!res.ok) throw new Error("Fetch failed");
 
       const csvText = await res.text();
@@ -52,19 +53,17 @@ export default function App() {
   }
 
   function parseCSV(text) {
-    const lines = text.split("\n");
+    const lines = text.trim().split(/\r?\n/);
     const data = [];
 
     for (let i = 1; i < lines.length; i++) {
-      const line = lines[i]?.trim();
-      if (!line) continue;
+      const cols = lines[i].split(",");
 
-      const cols = line.split(",");
+      if (!cols[0]) continue;
 
       data.push({
-        id: i,
-        team: cols[0]?.trim(),
-        score: Number(cols[4]) || 0
+        team: cols[0].trim(),
+        score: Number(cols[4]?.replace("\r", "")) || 0
       });
     }
 
@@ -76,26 +75,29 @@ export default function App() {
 
       {/* HEADER */}
       <header className="w-full max-w-lg flex justify-between items-center py-8 px-6 border-b border-red-900/40">
-
-        {/* Logo + IECUP */}
         <div className="flex items-center gap-4">
           <img
             src="/logo.png"
             alt="Company Logo"
             className="h-20 md:h-24 object-contain drop-shadow-[0_0_30px_rgba(255,0,0,0.6)]"
           />
+<div className="flex text-5xl font-spartan font-black tracking-[-0.04em]">
+  <span className="px-3 py-1 border-2 border-red-600 bg-black
+                   shadow-[0_0_18px_rgba(255,0,0,0.8)]
+                   text-white">
+    IE
+  </span>
 
-          <div className="text-3xl font-extrabold tracking-wide flex">
-            <span className="px-2 py-1 border-2 border-red-600 text-white bg-black rounded-md shadow-[0_0_12px_rgba(255,0,0,0.6)]">
-              IE
-            </span>
-            <span className="px-2 py-1 border-2 border-white text-white bg-black rounded-md ml-1 shadow-[0_0_12px_rgba(255,255,255,0.4)]">
-              CUP
-            </span>
-          </div>
+  <span className="px-3 py-1 border-2 border-white bg-black -ml-[3px]
+                   shadow-[0_0_14px_rgba(255,255,255,0.55)]
+                   text-white">
+    CUP
+  </span>
+</div>
+
+
         </div>
 
-        {/* Controls */}
         <div className="flex items-center gap-3">
           {isLoading && (
             <span className="text-xs text-red-400 animate-pulse">
@@ -109,7 +111,6 @@ export default function App() {
             Refresh
           </button>
         </div>
-
       </header>
 
       {/* MAIN */}
@@ -117,25 +118,23 @@ export default function App() {
         <h1 className="text-3xl font-bold text-center tracking-wide">
           Leaderboard
         </h1>
-        
 
         {errorMessage && (
-          <div className="bg-red-950 border border-red-800 text-red-400 p-4 rounded-lg mb-6">
+          <div className="bg-red-950 border border-red-800 text-red-400 p-4 rounded-lg my-6">
             {errorMessage}
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-4 mt-6">
           {leaderboardItems.map(item => (
             <div
-              key={item.id}
+              key={item.team}
               className="bg-[#0B0B0B] border border-red-900/40 rounded-xl p-5 flex justify-between items-center shadow hover:shadow-red-900/40 transition"
             >
               <div>
                 <div className="font-semibold text-lg tracking-wide">
-                  {item.team}
+                   {item.team}
                 </div>
-               
               </div>
 
               <div className="text-right">
@@ -150,7 +149,6 @@ export default function App() {
           ))}
         </div>
 
-        {/* VIEW FULL REPORT */}
         <a
           href={FULL_REPORT_URL}
           target="_blank"
