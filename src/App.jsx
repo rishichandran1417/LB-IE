@@ -15,7 +15,6 @@ const FULL_REPORT_URL =
 
 export default function App() {
   const [leaderboardItems, setLeaderboardItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
@@ -23,11 +22,12 @@ export default function App() {
   }, []);
 
   async function loadDataFromSheet() {
-    setIsLoading(true);
     setErrorMessage(null);
 
     try {
-      const res = await fetch(`${GOOGLE_SHEET_URL}&t=${Date.now()}`);
+      const res = await fetch(`${GOOGLE_SHEET_URL}&t=${Date.now()}`, {
+        cache: "no-store"
+      });
 
       if (!res.ok) throw new Error("Fetch failed");
 
@@ -36,19 +36,12 @@ export default function App() {
 
       parsedData.sort((a, b) => b.score - a.score);
 
-      const ranked = parsedData
-        .map((item, index) => ({
-          ...item,
-          rank: index + 1
-        }))
-        .slice(0, 4);
+      const ranked = parsedData.slice(0, 4);
 
       setLeaderboardItems(ranked);
     } catch (err) {
       console.error(err);
       setErrorMessage("Failed to load leaderboard data.");
-    } finally {
-      setIsLoading(false);
     }
   }
 
@@ -58,7 +51,6 @@ export default function App() {
 
     for (let i = 1; i < lines.length; i++) {
       const cols = lines[i].split(",");
-
       if (!cols[0]) continue;
 
       data.push({
@@ -75,43 +67,31 @@ export default function App() {
 
       {/* HEADER */}
       <header className="w-full max-w-lg flex justify-between items-center py-8 px-6 border-b border-red-900/40">
-        <div className="flex items-center gap-4">
-          <img
-            src="/logo.png"
-            alt="Company Logo"
-            className="h-20 md:h-24 object-contain drop-shadow-[0_0_30px_rgba(255,0,0,0.6)]"
-          />
-<div className="flex text-5xl font-spartan font-black tracking-[-0.04em]">
-  <span className="px-3 py-1 border-2 border-red-600 bg-black
-                   shadow-[0_0_18px_rgba(255,0,0,0.8)]
-                   text-white">
-    IE
-  </span>
 
-  <span className="px-3 py-1 border-2 border-white bg-black -ml-[3px]
-                   shadow-[0_0_14px_rgba(255,255,255,0.55)]
-                   text-white">
-    CUP
-  </span>
-</div>
+  {/* LEFT: Logo */}
+  <img
+    src="/logo.png"
+    alt="Company Logo"
+    className="h-20 md:h-24 object-contain drop-shadow-[0_0_30px_rgba(255,0,0,0.6)]"
+  />
 
+  {/* RIGHT: IECUP */}
+  <div className="flex text-5xl font-spartan font-black tracking-[-0.04em]">
+    <span className="px-3 py-1 border-2 border-red-600 bg-black
+                     shadow-[0_0_18px_rgba(255,0,0,0.8)]
+                     text-white">
+      IE
+    </span>
 
-        </div>
+    <span className="px-3 py-1 border-2 border-white bg-black -ml-[3px]
+                     shadow-[0_0_14px_rgba(255,255,255,0.55)]
+                     text-white">
+      CUP
+    </span>
+  </div>
 
-        <div className="flex items-center gap-3">
-          {isLoading && (
-            <span className="text-xs text-red-400 animate-pulse">
-              Syncing…
-            </span>
-          )}
-          <button
-            onClick={loadDataFromSheet}
-            className="border border-red-800 text-red-300 px-3 py-1 rounded-full hover:bg-red-900/40 transition"
-          >
-            Refresh
-          </button>
-        </div>
-      </header>
+</header>
+
 
       {/* MAIN */}
       <main className="w-full max-w-lg px-4 mt-10">
@@ -131,10 +111,8 @@ export default function App() {
               key={item.team}
               className="bg-[#0B0B0B] border border-red-900/40 rounded-xl p-5 flex justify-between items-center shadow hover:shadow-red-900/40 transition"
             >
-              <div>
-                <div className="font-semibold text-lg tracking-wide">
-                   {item.team}
-                </div>
+              <div className="font-semibold text-lg tracking-wide">
+                {item.team}
               </div>
 
               <div className="text-right">
